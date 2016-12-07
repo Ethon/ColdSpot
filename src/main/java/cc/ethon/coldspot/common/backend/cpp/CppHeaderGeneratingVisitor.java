@@ -60,6 +60,7 @@ class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 	@Override
 	public Void visit(ClassNode classNode) {
 		final String guard = writeIncludeGuardStart(classNode.getName());
+		// TODO : Includes
 		writeNamespaceStart(classNode.getName());
 		writeClassStart(classNode);
 

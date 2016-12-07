@@ -18,6 +18,14 @@ public class CppClassGenerator extends ClassGenerator {
 		}
 	}
 
+	private void generateSourceFile(ClassNode classNode) throws FileNotFoundException {
+		final File dest = getFileForClass(classNode.getName(), ".cpp");
+		try (PrintWriter printWriter = new PrintWriter(dest)) {
+			final IndentingWriter writer = new IndentingWriter(printWriter);
+			new CppSourceFileGeneratingVisitor(writer).visit(classNode);
+		}
+	}
+
 	public CppClassGenerator(File baseDir) {
 		super(baseDir);
 	}
@@ -25,6 +33,7 @@ public class CppClassGenerator extends ClassGenerator {
 	@Override
 	public void generate(ClassNode classNode) throws Exception {
 		generateHeaderFile(classNode);
+		generateSourceFile(classNode);
 	}
 
 }
