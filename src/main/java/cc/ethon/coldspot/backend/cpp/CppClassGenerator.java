@@ -10,11 +10,13 @@ import cc.ethon.coldspot.frontend.ast.ClassNode;
 
 public class CppClassGenerator extends ClassGenerator {
 
+	private final GenerationSettings settings;
+
 	private void generateHeaderFile(ClassNode classNode) throws FileNotFoundException {
 		final File dest = getFileForClass(classNode.getName(), ".hpp");
 		try (PrintWriter printWriter = new PrintWriter(dest)) {
 			final IndentingWriter writer = new IndentingWriter(printWriter);
-			new CppHeaderGeneratingVisitor(writer).visit(classNode);
+			new CppHeaderGeneratingVisitor(writer, settings).visit(classNode);
 		}
 	}
 
@@ -22,12 +24,13 @@ public class CppClassGenerator extends ClassGenerator {
 		final File dest = getFileForClass(classNode.getName(), ".cpp");
 		try (PrintWriter printWriter = new PrintWriter(dest)) {
 			final IndentingWriter writer = new IndentingWriter(printWriter);
-			new CppSourceFileGeneratingVisitor(writer).visit(classNode);
+			new CppSourceFileGeneratingVisitor(writer, settings).visit(classNode);
 		}
 	}
 
-	public CppClassGenerator(File baseDir) {
+	public CppClassGenerator(File baseDir, GenerationSettings settings) {
 		super(baseDir);
+		this.settings = settings;
 	}
 
 	@Override

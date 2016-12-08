@@ -1,5 +1,6 @@
 package cc.ethon.coldspot.backend.cpp;
 
+import cc.ethon.coldspot.backend.cpp.GenerationSettings.MemoryManagement;
 import cc.ethon.coldspot.common.type.ArrayType;
 import cc.ethon.coldspot.common.type.BoolType;
 import cc.ethon.coldspot.common.type.ByteType;
@@ -10,21 +11,25 @@ import cc.ethon.coldspot.common.type.FloatType;
 import cc.ethon.coldspot.common.type.IntType;
 import cc.ethon.coldspot.common.type.LongType;
 import cc.ethon.coldspot.common.type.ShortType;
-import cc.ethon.coldspot.common.type.Type;
 import cc.ethon.coldspot.common.type.TypeVisitor;
 import cc.ethon.coldspot.common.type.VoidType;
 
 public class CppTypeVisitor implements TypeVisitor<String> {
 
-	public static final CppTypeVisitor INSTANCE = new CppTypeVisitor();
+	private final GenerationSettings settings;
 
-	public static String getTypeName(Type type) {
-		return type.accept(INSTANCE);
+	public CppTypeVisitor(GenerationSettings settings) {
+		super();
+		this.settings = settings;
 	}
 
 	@Override
 	public String accept(ClassType classType) {
-		return CppClassNameUtil.makeQualifiedName(classType.getName()) + "*";
+		if (settings.getMemoryManagement() == MemoryManagement.SHARED_PTR) {
+			return "std::shared_ptr<" + CppClassNameUtil.makeQualifiedName(classType.getName()) + ">";
+		} else {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	@Override
@@ -74,6 +79,6 @@ public class CppTypeVisitor implements TypeVisitor<String> {
 
 	@Override
 	public String accept(ArrayType arrayType) {
-		return "coldspotrt::Array<" + getTypeName(arrayType.getSubType()) + ">*";
+		return "std::shared_ptr" + arrayType.accept(this) + "[]>";
 	}
 }

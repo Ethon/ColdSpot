@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import cc.ethon.coldspot.backend.IndentingWriter;
+import cc.ethon.coldspot.backend.cpp.GenerationSettings.MemoryManagement;
 import cc.ethon.coldspot.common.ClassName;
 import cc.ethon.coldspot.common.MethodSignature;
+import cc.ethon.coldspot.common.type.Type;
 import cc.ethon.coldspot.frontend.ast.AstVisitor;
 import cc.ethon.coldspot.frontend.ast.ClassNode;
 import cc.ethon.coldspot.frontend.ast.MethodNode;
@@ -13,6 +15,12 @@ import cc.ethon.coldspot.frontend.ast.MethodNode;
 class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 
 	private final IndentingWriter writer;
+	private final GenerationSettings settings;
+	private final CppTypeVisitor typeVisitor;
+
+	private String getTypeName(Type type) {
+		return type.accept(typeVisitor);
+	}
 
 	private String writeIncludeGuardStart(ClassName className) {
 		final String guard = CppClassNameUtil.makeIncludeGuardName(className);
@@ -24,6 +32,16 @@ class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 
 	private void writeIncludeGuardEnd(String guard) {
 		writer.println("#endif // " + guard);
+	}
+
+	private void writeIncludes() {
+		writer.println("// C++ Standard Library:");
+		writer.println("#include <cstdint>");
+		if (settings.getMemoryManagement() == MemoryManagement.SHARED_PTR) {
+			writer.println("#include <memory>");
+		}
+		// TODO: Write includes for used object types.
+		writer.println();
 	}
 
 	private void writeNamespaceStart(ClassName className) {
@@ -76,19 +94,20 @@ class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 	}
 
 	private void writeArguments(MethodNode method) {
-		final String asString = method.getSignature().getArgumentTypes().stream().map(type -> CppTypeVisitor.getTypeName(type))
-				.collect(Collectors.joining(", "));
+		final String asString = method.getSignature().getArgumentTypes().stream().map(type -> getTypeName(type)).collect(Collectors.joining(", "));
 		writer.printUnindented(asString);
 	}
 
-	public CppHeaderGeneratingVisitor(IndentingWriter writer) {
+	public CppHeaderGeneratingVisitor(IndentingWriter writer, GenerationSettings settings) {
 		this.writer = writer;
+		this.settings = settings;
+		this.typeVisitor = new CppTypeVisitor(settings);
 	}
 
 	@Override
 	public Void visit(ClassNode classNode) {
 		final String guard = writeIncludeGuardStart(classNode.getName());
-		// TODO : Includes
+		writeIncludes();
 		writeNamespaceStart(classNode.getName());
 		writeClassStart(classNode);
 
@@ -110,7 +129,7 @@ class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 			writeArguments(methodNode);
 			writer.printlnUnindented(");");
 		} else {
-			writer.print(CppTypeVisitor.getTypeName(signature.getReturnType()));
+			writer.print(getTypeName(signature.getReturnType()));
 			writer.printUnindented(" " + signature.getName() + "(");
 			writeArguments(methodNode);
 			writer.printlnUnindented(");");

@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import cc.ethon.coldspot.backend.IndentingWriter;
 import cc.ethon.coldspot.common.ClassName;
 import cc.ethon.coldspot.common.MethodSignature;
+import cc.ethon.coldspot.common.type.Type;
 import cc.ethon.coldspot.frontend.ast.AstVisitor;
 import cc.ethon.coldspot.frontend.ast.ClassNode;
 import cc.ethon.coldspot.frontend.ast.MethodNode;
@@ -13,6 +14,13 @@ import cc.ethon.coldspot.frontend.ast.MethodNode;
 class CppSourceFileGeneratingVisitor implements AstVisitor<Void> {
 
 	private final IndentingWriter writer;
+	@SuppressWarnings("unused")
+	private final GenerationSettings settings;
+	private final CppTypeVisitor typeVisitor;
+
+	private String getTypeName(Type type) {
+		return type.accept(typeVisitor);
+	}
 
 	private void writeIncludes(ClassName className) {
 		writer.println("#include <" + className.getPackageAsPath() + "/" + className.getName() + ".hpp>");
@@ -33,8 +41,7 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<Void> {
 	}
 
 	private void writeArguments(MethodNode method) {
-		final String asString = method.getSignature().getArgumentTypes().stream().map(type -> CppTypeVisitor.getTypeName(type))
-				.collect(Collectors.joining(", "));
+		final String asString = method.getSignature().getArgumentTypes().stream().map(type -> getTypeName(type)).collect(Collectors.joining(", "));
 		writer.printUnindented(asString);
 	}
 
@@ -47,7 +54,7 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<Void> {
 			writeArguments(methodNode);
 			writer.printlnUnindented(") {");
 		} else {
-			writer.print(CppTypeVisitor.getTypeName(signature.getReturnType()));
+			writer.print(getTypeName(signature.getReturnType()));
 			writer.printUnindented(" ");
 			writer.print(CppClassNameUtil.makeQualifiedName(owner));
 			writer.printUnindented("::" + signature.getName() + "(");
@@ -62,9 +69,10 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<Void> {
 		writer.println("}");
 	}
 
-	public CppSourceFileGeneratingVisitor(IndentingWriter writer) {
-		super();
+	public CppSourceFileGeneratingVisitor(IndentingWriter writer, GenerationSettings settings) {
 		this.writer = writer;
+		this.settings = settings;
+		this.typeVisitor = new CppTypeVisitor(settings);
 	}
 
 	@Override
