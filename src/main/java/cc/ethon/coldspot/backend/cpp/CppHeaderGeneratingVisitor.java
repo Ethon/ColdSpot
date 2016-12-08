@@ -65,6 +65,17 @@ class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 			for (final ClassName interfaceName : node.getInterfaces()) {
 				writer.printUnindented(", public " + CppClassNameUtil.makeQualifiedName(interfaceName));
 			}
+			if (settings.getMemoryManagement() == MemoryManagement.SHARED_PTR) {
+				writer.printUnindented(", std::shared_from_this<" + CppClassNameUtil.makeQualifiedName(node.getName()) + ">");
+			}
+		} else {
+			// This has to be java.lang.Object
+			if (!node.getName().equals(new ClassName("java/lang/Object"))) {
+				throw new IllegalArgumentException();
+			}
+			if (settings.getMemoryManagement() == MemoryManagement.SHARED_PTR) {
+				writer.printUnindented(": std::shared_from_this<" + CppClassNameUtil.makeQualifiedName(node.getName()) + ">");
+			}
 		}
 		writer.printlnUnindented(" {");
 		writer.increaseIndentation();
