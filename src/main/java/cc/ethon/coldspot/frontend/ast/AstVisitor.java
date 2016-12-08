@@ -4,4 +4,6 @@ public interface AstVisitor<T> {
 
 	public T visit(ClassNode classNode);
 
+	public T visit(MethodNode methodNode);
+
 }

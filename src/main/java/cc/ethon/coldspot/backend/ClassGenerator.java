@@ -1,4 +1,4 @@
-package cc.ethon.coldspot.common.backend;
+package cc.ethon.coldspot.backend;
 
 import java.io.File;
 

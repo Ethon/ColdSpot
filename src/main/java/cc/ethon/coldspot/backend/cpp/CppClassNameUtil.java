@@ -1,4 +1,4 @@
-package cc.ethon.coldspot.common.backend.cpp;
+package cc.ethon.coldspot.backend.cpp;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;

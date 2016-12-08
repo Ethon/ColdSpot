@@ -1,11 +1,11 @@
-package cc.ethon.coldspot.common.backend.cpp;
+package cc.ethon.coldspot.backend.cpp;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
-import cc.ethon.coldspot.common.backend.ClassGenerator;
-import cc.ethon.coldspot.common.backend.IndentingWriter;
+import cc.ethon.coldspot.backend.ClassGenerator;
+import cc.ethon.coldspot.backend.IndentingWriter;
 import cc.ethon.coldspot.frontend.ast.ClassNode;
 
 public class CppClassGenerator extends ClassGenerator {

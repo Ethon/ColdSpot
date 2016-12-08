@@ -1,9 +1,14 @@
-package cc.ethon.coldspot.common.backend.cpp;
+package cc.ethon.coldspot.backend.cpp;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import cc.ethon.coldspot.backend.IndentingWriter;
 import cc.ethon.coldspot.common.ClassName;
-import cc.ethon.coldspot.common.backend.IndentingWriter;
+import cc.ethon.coldspot.common.MethodSignature;
 import cc.ethon.coldspot.frontend.ast.AstVisitor;
 import cc.ethon.coldspot.frontend.ast.ClassNode;
+import cc.ethon.coldspot.frontend.ast.MethodNode;
 
 class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 
@@ -53,6 +58,29 @@ class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 		writer.println();
 	}
 
+	private void writeMembers(String access, List<MethodNode> methods) {
+		if (methods.isEmpty()) {
+			return;
+		}
+		writer.decreaseIndentation();
+		writer.println(access);
+		writer.increaseIndentation();
+
+		for (int i = 0; i < methods.size(); i++) {
+			if (i != 0) {
+				writer.println();
+			}
+			final MethodNode methodNode = methods.get(i);
+			methodNode.accept(this);
+		}
+	}
+
+	private void printArguments(MethodNode method) {
+		final String asString = method.getSignature().getArgumentTypes().stream().map(type -> CppTypeVisitor.getTypeName(type))
+				.collect(Collectors.joining(", "));
+		writer.printUnindented(asString);
+	}
+
 	public CppHeaderGeneratingVisitor(IndentingWriter writer) {
 		this.writer = writer;
 	}
@@ -64,9 +92,27 @@ class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 		writeNamespaceStart(classNode.getName());
 		writeClassStart(classNode);
 
+		writeMembers("public:", classNode.getPublicMethods());
+
 		writeClassEnd();
 		writeNamespaceEnd(classNode.getName());
 		writeIncludeGuardEnd(guard);
+		return null;
+	}
+
+	@Override
+	public Void visit(MethodNode methodNode) {
+		final MethodSignature signature = methodNode.getSignature();
+		if (signature.getName().equals("<init>")) {
+			writer.print("explicit " + methodNode.getOwningClass().getName().getName() + "(");
+			printArguments(methodNode);
+			writer.printlnUnindented(");");
+		} else {
+			writer.print(CppTypeVisitor.getTypeName(signature.getReturnType()));
+			writer.printUnindented(" " + signature.getName() + "(");
+			printArguments(methodNode);
+			writer.printlnUnindented(");");
+		}
 		return null;
 	}
 

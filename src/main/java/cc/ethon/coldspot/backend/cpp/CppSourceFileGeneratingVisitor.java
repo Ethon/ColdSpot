@@ -1,9 +1,10 @@
-package cc.ethon.coldspot.common.backend.cpp;
+package cc.ethon.coldspot.backend.cpp;
 
+import cc.ethon.coldspot.backend.IndentingWriter;
 import cc.ethon.coldspot.common.ClassName;
-import cc.ethon.coldspot.common.backend.IndentingWriter;
 import cc.ethon.coldspot.frontend.ast.AstVisitor;
 import cc.ethon.coldspot.frontend.ast.ClassNode;
+import cc.ethon.coldspot.frontend.ast.MethodNode;
 
 class CppSourceFileGeneratingVisitor implements AstVisitor<Void> {
 
@@ -39,6 +40,12 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<Void> {
 		writeNamespaceStart(classNode.getName());
 
 		writeNamespaceEnd(classNode.getName());
+		return null;
+	}
+
+	@Override
+	public Void visit(MethodNode methodNode) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
