@@ -75,7 +75,7 @@ class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 		}
 	}
 
-	private void printArguments(MethodNode method) {
+	private void writeArguments(MethodNode method) {
 		final String asString = method.getSignature().getArgumentTypes().stream().map(type -> CppTypeVisitor.getTypeName(type))
 				.collect(Collectors.joining(", "));
 		writer.printUnindented(asString);
@@ -92,6 +92,8 @@ class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 		writeNamespaceStart(classNode.getName());
 		writeClassStart(classNode);
 
+		writeMembers("private:", classNode.getPrivateMethods());
+		writeMembers("protected:", classNode.getProtectedMethods());
 		writeMembers("public:", classNode.getPublicMethods());
 
 		writeClassEnd();
@@ -105,12 +107,12 @@ class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 		final MethodSignature signature = methodNode.getSignature();
 		if (signature.getName().equals("<init>")) {
 			writer.print("explicit " + methodNode.getOwningClass().getName().getName() + "(");
-			printArguments(methodNode);
+			writeArguments(methodNode);
 			writer.printlnUnindented(");");
 		} else {
 			writer.print(CppTypeVisitor.getTypeName(signature.getReturnType()));
 			writer.printUnindented(" " + signature.getName() + "(");
-			printArguments(methodNode);
+			writeArguments(methodNode);
 			writer.printlnUnindented(");");
 		}
 		return null;
