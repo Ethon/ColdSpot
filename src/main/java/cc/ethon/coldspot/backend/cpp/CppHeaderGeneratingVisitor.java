@@ -9,8 +9,13 @@ import cc.ethon.coldspot.common.ClassName;
 import cc.ethon.coldspot.common.MethodSignature;
 import cc.ethon.coldspot.common.type.Type;
 import cc.ethon.coldspot.frontend.ast.AstVisitor;
+import cc.ethon.coldspot.frontend.ast.BinaryExpressionNode;
 import cc.ethon.coldspot.frontend.ast.ClassNode;
 import cc.ethon.coldspot.frontend.ast.MethodNode;
+import cc.ethon.coldspot.frontend.ast.ReturnStatementNode;
+import cc.ethon.coldspot.frontend.ast.StatementBlock;
+import cc.ethon.coldspot.frontend.ast.VariableDeclarationStatementNode;
+import cc.ethon.coldspot.frontend.ast.VariableExpressionNode;
 
 class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 
@@ -105,7 +110,8 @@ class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 	}
 
 	private void writeArguments(MethodNode method) {
-		final String asString = method.getSignature().getArgumentTypes().stream().map(type -> getTypeName(type)).collect(Collectors.joining(", "));
+		final String asString = method.getArguments().stream().filter(arg -> !arg.getName().equals("this"))
+				.map(arg -> getTypeName(arg.getType()) + " " + arg.getName()).collect(Collectors.joining(", "));
 		writer.printUnindented(asString);
 	}
 
@@ -146,6 +152,31 @@ class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 			writer.printlnUnindented(");");
 		}
 		return null;
+	}
+
+	@Override
+	public Void accept(VariableExpressionNode variableExpressionNode) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Void accept(StatementBlock statementBlock) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Void accept(ReturnStatementNode returnStatementNode) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Void accept(BinaryExpressionNode binaryExpressionNode) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Void accept(VariableDeclarationStatementNode variableDeclarationNode) {
+		throw new UnsupportedOperationException();
 	}
 
 }

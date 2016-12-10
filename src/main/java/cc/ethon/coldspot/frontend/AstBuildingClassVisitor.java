@@ -47,7 +47,7 @@ class AstBuildingClassVisitor extends ClassVisitor {
 			// Treat package-local methods as public methods.
 			classNode.getPublicMethods().add(node);
 		}
-		return super.visitMethod(access, name, desc, signature, exceptions);
+		return new AstBuildingMethodVisitor(node);
 	}
 
 }

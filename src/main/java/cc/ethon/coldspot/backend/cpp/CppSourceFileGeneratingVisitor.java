@@ -1,6 +1,7 @@
 package cc.ethon.coldspot.backend.cpp;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import cc.ethon.coldspot.backend.IndentingWriter;
@@ -8,10 +9,17 @@ import cc.ethon.coldspot.common.ClassName;
 import cc.ethon.coldspot.common.MethodSignature;
 import cc.ethon.coldspot.common.type.Type;
 import cc.ethon.coldspot.frontend.ast.AstVisitor;
+import cc.ethon.coldspot.frontend.ast.BinaryExpressionNode;
 import cc.ethon.coldspot.frontend.ast.ClassNode;
+import cc.ethon.coldspot.frontend.ast.ExpressionNode;
 import cc.ethon.coldspot.frontend.ast.MethodNode;
+import cc.ethon.coldspot.frontend.ast.ReturnStatementNode;
+import cc.ethon.coldspot.frontend.ast.StatementBlock;
+import cc.ethon.coldspot.frontend.ast.StatementNode;
+import cc.ethon.coldspot.frontend.ast.VariableDeclarationStatementNode;
+import cc.ethon.coldspot.frontend.ast.VariableExpressionNode;
 
-class CppSourceFileGeneratingVisitor implements AstVisitor<Void> {
+class CppSourceFileGeneratingVisitor implements AstVisitor<String> {
 
 	private final IndentingWriter writer;
 	@SuppressWarnings("unused")
@@ -41,7 +49,8 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<Void> {
 	}
 
 	private void writeArguments(MethodNode method) {
-		final String asString = method.getSignature().getArgumentTypes().stream().map(type -> getTypeName(type)).collect(Collectors.joining(", "));
+		final String asString = method.getArguments().stream().filter(arg -> !arg.getName().equals("this"))
+				.map(arg -> getTypeName(arg.getType()) + " " + arg.getName()).collect(Collectors.joining(", "));
 		writer.printUnindented(asString);
 	}
 
@@ -76,7 +85,7 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<Void> {
 	}
 
 	@Override
-	public Void visit(ClassNode classNode) {
+	public String visit(ClassNode classNode) {
 		writeIncludes(classNode.getName());
 		writeMembers(classNode.getPrivateMethods());
 		writeMembers(classNode.getProtectedMethods());
@@ -85,10 +94,48 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<Void> {
 	}
 
 	@Override
-	public Void visit(MethodNode methodNode) {
+	public String visit(MethodNode methodNode) {
 		writeMethodStart(methodNode);
+		methodNode.getBody().accept(this);
 		writeMethodEnd();
 		return null;
+	}
+
+	@Override
+	public String accept(VariableExpressionNode variableExpressionNode) {
+		return variableExpressionNode.getName();
+	}
+
+	@Override
+	public String accept(StatementBlock statementBlock) {
+		for (final StatementNode statementNode : statementBlock.getStatements()) {
+			statementNode.accept(this);
+		}
+		return null;
+	}
+
+	@Override
+	public String accept(ReturnStatementNode returnStatementNode) {
+		final Optional<ExpressionNode> result = returnStatementNode.getResult();
+		if (result.isPresent()) {
+			writer.println("return " + result.get().accept(this) + ";");
+		} else {
+			writer.println("return;");
+		}
+
+		return null;
+	}
+
+	@Override
+	public String accept(BinaryExpressionNode binaryExpressionNode) {
+		final String left = binaryExpressionNode.getLeft().accept(this);
+		final String right = binaryExpressionNode.getRight().accept(this);
+		return String.format("(%s %s %s)", left, binaryExpressionNode.getOperator(), right);
+	}
+
+	@Override
+	public String accept(VariableDeclarationStatementNode variableDeclarationNode) {
+		throw new UnsupportedOperationException();
 	}
 
 }
