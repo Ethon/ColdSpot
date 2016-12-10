@@ -82,7 +82,8 @@ public final class TypeParsing {
 			break;
 
 		default:
-			throw new IllegalArgumentException();
+			final String start = input.substring(index);
+			throw new UnsupportedOperationException("Unknown type starting at '" + start + "'");
 		}
 
 		result.type = type;
