@@ -17,6 +17,14 @@ public class StatementBlock extends StatementNode {
 	}
 
 	@Override
+	public int getSmallestInstructionIndexWithChildren() {
+		if (statements.isEmpty()) {
+			return instructionIndex;
+		}
+		return statements.get(0).getSmallestInstructionIndexWithChildren();
+	}
+
+	@Override
 	public <T> T accept(AstVisitor<T> visitor) {
 		return visitor.accept(this);
 	}

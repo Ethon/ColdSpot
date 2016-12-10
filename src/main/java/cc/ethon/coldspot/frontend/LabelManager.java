@@ -45,6 +45,10 @@ class LabelManager {
 		return lastLabel;
 	}
 
+	public int getInstructionIndexForLabel(Label label) {
+		return labels.get(label).instructionIndex;
+	}
+
 	public void addLabel(Label label, int instructionIndex) {
 		labels.put(label, new LabelPosition(instructionIndex));
 		if (firstLabel == null) {

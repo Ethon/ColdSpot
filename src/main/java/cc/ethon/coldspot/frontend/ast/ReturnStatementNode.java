@@ -16,6 +16,14 @@ public class ReturnStatementNode extends StatementNode {
 	}
 
 	@Override
+	public int getSmallestInstructionIndexWithChildren() {
+		if (!result.isPresent()) {
+			return instructionIndex;
+		}
+		return result.get().getSmallestInstructionIndexWithChildren();
+	}
+
+	@Override
 	public <T> T accept(AstVisitor<T> visitor) {
 		return visitor.accept(this);
 	}

@@ -2,7 +2,7 @@ package cc.ethon.coldspot.frontend.ast;
 
 public abstract class ByteCodeNode implements AstNode {
 
-	private final int instructionIndex;
+	protected int instructionIndex;
 
 	public ByteCodeNode(int instructionIndex) {
 		super();
@@ -10,6 +10,10 @@ public abstract class ByteCodeNode implements AstNode {
 	}
 
 	public int getInstructionIndex() {
+		return instructionIndex;
+	}
+
+	public int getSmallestInstructionIndexWithChildren() {
 		return instructionIndex;
 	}
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.objectweb.asm.Label;
 
@@ -15,16 +16,18 @@ class LocalVariableManager {
 
 	private final LabelManager labels;
 	private final Map<Integer, List<VariableDeclarationStatementNode>> locals;
+	private final Map<Integer, List<VariableDeclarationStatementNode>> unresolved;
 
 	public LocalVariableManager(LabelManager labels) {
 		this.labels = labels;
 		locals = new HashMap<Integer, List<VariableDeclarationStatementNode>>();
+		unresolved = new HashMap<Integer, List<VariableDeclarationStatementNode>>();
 	}
 
-	public VariableDeclarationStatementNode getVariableDeclarationForIndex(int localIndex, int instructionIndex) {
+	public Optional<VariableDeclarationStatementNode> getVariableDeclarationForIndex(int localIndex, int instructionIndex) {
 		final List<VariableDeclarationStatementNode> variables = locals.get(localIndex);
 		if (variables == null || variables.isEmpty()) {
-			throw new IllegalArgumentException();
+			return Optional.empty();
 		}
 		VariableDeclarationStatementNode bestMatch = null;
 		for (final VariableDeclarationStatementNode cur : variables) {
@@ -36,10 +39,7 @@ class LocalVariableManager {
 				}
 			}
 		}
-		if (bestMatch == null) {
-			throw new IllegalArgumentException();
-		}
-		return bestMatch;
+		return Optional.ofNullable(bestMatch);
 	}
 
 	public void addLocal(int localIndex, VariableDeclarationStatementNode decl) {
@@ -49,6 +49,20 @@ class LocalVariableManager {
 			locals.put(localIndex, forIndex);
 		}
 		forIndex.add(decl);
+	}
+
+	public VariableDeclarationStatementNode addUnresolvedLocal(int instructionIndex, int localIndex) {
+		final VariableDeclarationStatementNode decl = new VariableDeclarationStatementNode(instructionIndex);
+		decl.setName("unresolved" + localIndex);
+		addLocal(localIndex, decl);
+
+		List<VariableDeclarationStatementNode> forIndex = unresolved.get(localIndex);
+		if (forIndex == null) {
+			forIndex = new ArrayList<VariableDeclarationStatementNode>();
+			unresolved.put(localIndex, forIndex);
+		}
+		forIndex.add(decl);
+		return decl;
 	}
 
 	public void addMethodArguments(MethodNode methodNode) {
@@ -69,6 +83,23 @@ class LocalVariableManager {
 				decl.setType(type);
 			}
 		}
+	}
+
+	public void resolve(int localIndex, Label start, Label end, BasicBlockBuilder basicBlockBuilder) {
+		final List<VariableDeclarationStatementNode> decls = unresolved.get(localIndex);
+		if (decls == null || decls.isEmpty()) {
+			return;
+		}
+		final List<VariableDeclarationStatementNode> toRemove = new ArrayList<VariableDeclarationStatementNode>();
+		for (final VariableDeclarationStatementNode decl : decls) {
+			if (labels.isInstructionIndexBetweenLabels(start, end, decl.getInstructionIndex())) {
+				toRemove.add(decl);
+				final int startInstructionIndex = labels.getInstructionIndexForLabel(start);
+				decl.updateInstructionIndex(startInstructionIndex);
+				basicBlockBuilder.injectStatementBefore(decl);
+			}
+		}
+		decls.removeAll(toRemove);
 	}
 
 }

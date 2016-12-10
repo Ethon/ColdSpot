@@ -16,4 +16,8 @@ public interface AstVisitor<T> {
 
 	public T accept(VariableDeclarationStatementNode variableDeclarationNode);
 
+	public T accept(LiteralExpressionNode literalExpressionNode);
+
+	public T accept(AssignmentStatementNode assignmentStatementNode);
+
 }

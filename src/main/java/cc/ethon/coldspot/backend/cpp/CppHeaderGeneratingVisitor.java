@@ -8,9 +8,11 @@ import cc.ethon.coldspot.backend.cpp.GenerationSettings.MemoryManagement;
 import cc.ethon.coldspot.common.ClassName;
 import cc.ethon.coldspot.common.MethodSignature;
 import cc.ethon.coldspot.common.type.Type;
+import cc.ethon.coldspot.frontend.ast.AssignmentStatementNode;
 import cc.ethon.coldspot.frontend.ast.AstVisitor;
 import cc.ethon.coldspot.frontend.ast.BinaryExpressionNode;
 import cc.ethon.coldspot.frontend.ast.ClassNode;
+import cc.ethon.coldspot.frontend.ast.LiteralExpressionNode;
 import cc.ethon.coldspot.frontend.ast.MethodNode;
 import cc.ethon.coldspot.frontend.ast.ReturnStatementNode;
 import cc.ethon.coldspot.frontend.ast.StatementBlock;
@@ -173,6 +175,16 @@ class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 
 	@Override
 	public Void accept(VariableDeclarationStatementNode variableDeclarationNode) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Void accept(LiteralExpressionNode literalExpressionNode) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Void accept(AssignmentStatementNode assignmentStatementNode) {
 		throw new UnsupportedOperationException();
 	}
 

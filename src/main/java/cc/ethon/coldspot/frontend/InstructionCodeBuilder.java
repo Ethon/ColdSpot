@@ -3,11 +3,14 @@ package cc.ethon.coldspot.frontend;
 import java.util.Optional;
 import java.util.Stack;
 
+import cc.ethon.coldspot.frontend.ast.AssignmentStatementNode;
 import cc.ethon.coldspot.frontend.ast.BinaryExpressionNode;
 import cc.ethon.coldspot.frontend.ast.ExpressionNode;
+import cc.ethon.coldspot.frontend.ast.LiteralExpressionNode;
 import cc.ethon.coldspot.frontend.ast.ReturnStatementNode;
 import cc.ethon.coldspot.frontend.ast.VariableDeclarationStatementNode;
 import cc.ethon.coldspot.frontend.ast.VariableExpressionNode;
+import cc.ethon.coldspot.frontend.errors.InvalidLocalVariableException;
 
 public class InstructionCodeBuilder {
 
@@ -27,9 +30,37 @@ public class InstructionCodeBuilder {
 		return instructionIndex;
 	}
 
-	public void handleVariableExpression(int localIndex) {
-		final VariableDeclarationStatementNode decl = locals.getVariableDeclarationForIndex(localIndex, instructionIndex);
-		final VariableExpressionNode variableExpressionNode = new VariableExpressionNode(instructionIndex, decl);
+	public void handleLiteralExpression(String literal) {
+		expressionStack.push(new LiteralExpressionNode(instructionIndex, literal));
+		++instructionIndex;
+	}
+
+	public void handleIntLiteralExpression(int literal) {
+		handleLiteralExpression(String.valueOf(literal));
+	}
+
+	public void handleLocalVariableStore(int localIndex) {
+		final Optional<VariableDeclarationStatementNode> decl = locals.getVariableDeclarationForIndex(localIndex, instructionIndex);
+		final ExpressionNode value = expressionStack.pop();
+		VariableDeclarationStatementNode target = null;
+		if (!decl.isPresent()) {
+			// We need to pass the next instruction index as the
+			// label indicating variable lifetime comes after the store.
+			target = locals.addUnresolvedLocal(instructionIndex + 1, localIndex);
+		} else {
+			target = decl.get();
+		}
+		final VariableExpressionNode targetPseudoNode = new VariableExpressionNode(instructionIndex, target);
+		basicBlockBuilder.addStatement(new AssignmentStatementNode(localIndex, targetPseudoNode, value));
+		++instructionIndex;
+	}
+
+	public void handleLocalVariableLoad(int localIndex) throws InvalidLocalVariableException {
+		final Optional<VariableDeclarationStatementNode> decl = locals.getVariableDeclarationForIndex(localIndex, instructionIndex);
+		if (!decl.isPresent()) {
+			throw new InvalidLocalVariableException("Attempt to load local variable " + localIndex + ", which was not declared");
+		}
+		final VariableExpressionNode variableExpressionNode = new VariableExpressionNode(instructionIndex, decl.get());
 		expressionStack.push(variableExpressionNode);
 		++instructionIndex;
 	}

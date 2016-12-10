@@ -1,15 +1,13 @@
 package cc.ethon.coldspot.frontend.ast;
 
-public class BinaryExpressionNode extends ExpressionNode {
+public class AssignmentStatementNode extends StatementNode {
 
 	private final ExpressionNode left, right;
-	private final String operator;
 
-	public BinaryExpressionNode(int instructionIndex, ExpressionNode left, ExpressionNode right, String operator) {
+	public AssignmentStatementNode(int instructionIndex, ExpressionNode left, ExpressionNode right) {
 		super(instructionIndex);
 		this.left = left;
 		this.right = right;
-		this.operator = operator;
 	}
 
 	public ExpressionNode getLeft() {
@@ -20,13 +18,9 @@ public class BinaryExpressionNode extends ExpressionNode {
 		return right;
 	}
 
-	public String getOperator() {
-		return operator;
-	}
-
 	@Override
 	public int getSmallestInstructionIndexWithChildren() {
-		return getLeft().getSmallestInstructionIndexWithChildren();
+		return Math.min(left.getSmallestInstructionIndexWithChildren(), right.getSmallestInstructionIndexWithChildren());
 	}
 
 	@Override

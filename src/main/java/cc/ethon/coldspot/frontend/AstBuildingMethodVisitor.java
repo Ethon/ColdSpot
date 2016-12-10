@@ -48,6 +48,7 @@ class AstBuildingMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+		locals.resolve(index, start, end, basicBlockBuilder);
 		locals.updateNameAndType(index, start, end, name, TypeParsing.parseType(desc));
 	}
 
@@ -59,12 +60,58 @@ class AstBuildingMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitVarInsn(int opcode, int var) {
-		instructionCodeBuilder.handleVariableExpression(var);
+		try {
+			switch (opcode) {
+			case Opcodes.ILOAD:
+			case Opcodes.LLOAD:
+			case Opcodes.FLOAD:
+			case Opcodes.DLOAD:
+			case Opcodes.ALOAD:
+				instructionCodeBuilder.handleLocalVariableLoad(var);
+				break;
+
+			case Opcodes.ISTORE:
+			case Opcodes.LSTORE:
+			case Opcodes.FSTORE:
+			case Opcodes.DSTORE:
+			case Opcodes.ASTORE:
+				instructionCodeBuilder.handleLocalVariableStore(var);
+				break;
+
+			default:
+				throw new UnsupportedOperationException("Unsupported varinsn opcode " + opcode);
+			}
+		} catch (final Exception e) {
+			throw new RuntimeException("Error processing variable instruction", e);
+		}
 	}
 
 	@Override
 	public void visitInsn(int opcode) {
 		switch (opcode) {
+
+		case Opcodes.ICONST_M1:
+			instructionCodeBuilder.handleIntLiteralExpression(-1);
+			break;
+		case Opcodes.ICONST_0:
+			instructionCodeBuilder.handleIntLiteralExpression(0);
+			break;
+		case Opcodes.ICONST_1:
+			instructionCodeBuilder.handleIntLiteralExpression(1);
+			break;
+		case Opcodes.ICONST_2:
+			instructionCodeBuilder.handleIntLiteralExpression(2);
+			break;
+		case Opcodes.ICONST_3:
+			instructionCodeBuilder.handleIntLiteralExpression(3);
+			break;
+		case Opcodes.ICONST_4:
+			instructionCodeBuilder.handleIntLiteralExpression(4);
+			break;
+		case Opcodes.ICONST_5:
+			instructionCodeBuilder.handleIntLiteralExpression(5);
+			break;
+
 		case Opcodes.IADD:
 		case Opcodes.LADD:
 		case Opcodes.FADD:
@@ -82,7 +129,7 @@ class AstBuildingMethodVisitor extends MethodVisitor {
 			break;
 
 		default:
-			throw new UnsupportedOperationException("Unsupported opcode " + opcode);
+			throw new UnsupportedOperationException("Unsupported insn opcode " + opcode);
 		}
 	}
 }

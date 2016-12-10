@@ -8,10 +8,12 @@ import cc.ethon.coldspot.backend.IndentingWriter;
 import cc.ethon.coldspot.common.ClassName;
 import cc.ethon.coldspot.common.MethodSignature;
 import cc.ethon.coldspot.common.type.Type;
+import cc.ethon.coldspot.frontend.ast.AssignmentStatementNode;
 import cc.ethon.coldspot.frontend.ast.AstVisitor;
 import cc.ethon.coldspot.frontend.ast.BinaryExpressionNode;
 import cc.ethon.coldspot.frontend.ast.ClassNode;
 import cc.ethon.coldspot.frontend.ast.ExpressionNode;
+import cc.ethon.coldspot.frontend.ast.LiteralExpressionNode;
 import cc.ethon.coldspot.frontend.ast.MethodNode;
 import cc.ethon.coldspot.frontend.ast.ReturnStatementNode;
 import cc.ethon.coldspot.frontend.ast.StatementBlock;
@@ -135,7 +137,21 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<String> {
 
 	@Override
 	public String accept(VariableDeclarationStatementNode variableDeclarationNode) {
-		throw new UnsupportedOperationException();
+		writer.printf("%s %s;%n", getTypeName(variableDeclarationNode.getType()), variableDeclarationNode.getName());
+		return null;
+	}
+
+	@Override
+	public String accept(LiteralExpressionNode literalExpressionNode) {
+		return literalExpressionNode.getLiteral();
+	}
+
+	@Override
+	public String accept(AssignmentStatementNode assignmentStatementNode) {
+		final String left = assignmentStatementNode.getLeft().accept(this);
+		final String right = assignmentStatementNode.getRight().accept(this);
+		writer.printf("%s = %s;%n", left, right);
+		return null;
 	}
 
 }

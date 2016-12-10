@@ -27,6 +27,16 @@ class BasicBlockBuilder {
 		last().getStatements().getStatements().add(statement);
 	}
 
+	public void injectStatementBefore(StatementNode statement) {
+		for (final BasicBlock basicBlock : basicBlocks) {
+			if (basicBlock.containsInstructionIndex(statement.getInstructionIndex())) {
+				basicBlock.injectStatementBefore(statement);
+				return;
+			}
+		}
+		throw new IllegalArgumentException();
+	}
+
 	public void finishBasicBlock() {
 		isBasicBlockFinished = true;
 	}

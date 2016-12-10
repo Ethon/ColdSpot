@@ -15,6 +15,10 @@ public class VariableDeclarationStatementNode extends StatementNode {
 		value = Optional.empty();
 	}
 
+	public void updateInstructionIndex(int instructionIndex) {
+		this.instructionIndex = instructionIndex;
+	}
+
 	public Type getType() {
 		return type;
 	}

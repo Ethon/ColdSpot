@@ -49,4 +49,9 @@ public class IndentingWriter {
 		writer.println(line);
 	}
 
+	public void printf(String format, Object... args) {
+		indent();
+		writer.printf(format, args);
+	}
+
 }
