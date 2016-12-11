@@ -59,6 +59,12 @@ class AstBuildingMethodVisitor extends MethodVisitor {
 	}
 
 	@Override
+	public void visitIincInsn(int var, int increment) {
+		// TODO Auto-generated method stub
+		super.visitIincInsn(var, increment);
+	}
+
+	@Override
 	public void visitVarInsn(int opcode, int var) {
 		try {
 			switch (opcode) {

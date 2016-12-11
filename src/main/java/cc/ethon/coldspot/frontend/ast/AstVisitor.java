@@ -20,4 +20,6 @@ public interface AstVisitor<T> {
 
 	public T accept(AssignmentStatementNode assignmentStatementNode);
 
+	public T accept(IncrementExpressionNode incrementExpressionNode);
+
 }

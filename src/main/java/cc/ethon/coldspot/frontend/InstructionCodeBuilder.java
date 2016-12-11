@@ -65,6 +65,16 @@ public class InstructionCodeBuilder {
 		++instructionIndex;
 	}
 
+	public void handleIncrement(int localIndex, int increment) throws InvalidLocalVariableException {
+		handleLocalVariableLoad(localIndex);
+		--instructionIndex;
+		handleIntLiteralExpression(increment);
+		--instructionIndex;
+		handleBinaryExpression("+");
+		--instructionIndex;
+		handleLocalVariableStore(localIndex);
+	}
+
 	public void handleBinaryExpression(String operator) {
 		final ExpressionNode right = expressionStack.pop();
 		final ExpressionNode left = expressionStack.pop();

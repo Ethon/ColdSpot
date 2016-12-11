@@ -13,6 +13,7 @@ import cc.ethon.coldspot.frontend.ast.AstVisitor;
 import cc.ethon.coldspot.frontend.ast.BinaryExpressionNode;
 import cc.ethon.coldspot.frontend.ast.ClassNode;
 import cc.ethon.coldspot.frontend.ast.ExpressionNode;
+import cc.ethon.coldspot.frontend.ast.IncrementExpressionNode;
 import cc.ethon.coldspot.frontend.ast.LiteralExpressionNode;
 import cc.ethon.coldspot.frontend.ast.MethodNode;
 import cc.ethon.coldspot.frontend.ast.ReturnStatementNode;
@@ -152,6 +153,17 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<String> {
 		final String right = assignmentStatementNode.getRight().accept(this);
 		writer.printf("%s = %s;%n", left, right);
 		return null;
+	}
+
+	@Override
+	public String accept(IncrementExpressionNode incrementExpressionNode) {
+		if (incrementExpressionNode.getIncrementBy() == 1) {
+			return "++" + incrementExpressionNode.getToIncrement().getName();
+		} else if (incrementExpressionNode.getIncrementBy() == -1) {
+			return "--" + incrementExpressionNode.getToIncrement().getName();
+		} else {
+			return String.format("(%s += %s)", incrementExpressionNode.getToIncrement().getName(), incrementExpressionNode.getIncrementBy());
+		}
 	}
 
 }
