@@ -3,7 +3,10 @@ package cc.ethon.coldspot.frontend;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.objectweb.asm.Label;
+
 import cc.ethon.coldspot.frontend.BasicBlock.LeftBy;
+import cc.ethon.coldspot.frontend.ast.ExpressionNode;
 import cc.ethon.coldspot.frontend.ast.StatementBlock;
 import cc.ethon.coldspot.frontend.ast.StatementNode;
 
@@ -14,6 +17,12 @@ class BasicBlockBuilder {
 
 	private BasicBlock last() {
 		return basicBlocks.get(basicBlocks.size() - 1);
+	}
+
+	private void ensureBasicBlockExists(int instructionIndex) {
+		if (basicBlocks.isEmpty()) {
+			basicBlocks.add(new BasicBlock(new StatementBlock(instructionIndex)));
+		}
 	}
 
 	public BasicBlockBuilder() {
@@ -37,13 +46,25 @@ class BasicBlockBuilder {
 		throw new IllegalArgumentException();
 	}
 
-	public void finishBasicBlock() {
+	public void finishBasicBlockByReturn(int instructionIndex) {
 		isBasicBlockFinished = true;
+		ensureBasicBlockExists(instructionIndex);
+		last().setLeftBy(LeftBy.RETURN);
 	}
 
-	public void finishBasicBlockByReturn() {
-		finishBasicBlock();
-		last().setLeftBy(LeftBy.RETURN);
+	public void finishBasicBlockByJump(int instructionIndex, Label target) {
+		isBasicBlockFinished = true;
+		ensureBasicBlockExists(instructionIndex);
+		last().setLeftBy(LeftBy.JUMP);
+		last().setJumpTarget(target);
+	}
+
+	public void finishBasicBlockByConditionalJump(int instructionIndex, Label target, ExpressionNode condition) {
+		isBasicBlockFinished = true;
+		ensureBasicBlockExists(instructionIndex);
+		last().setLeftBy(LeftBy.CONDITONAL_JUMP);
+		last().setJumpTarget(target);
+		last().setJumpCondition(condition);
 	}
 
 	public StatementBlock compile() {

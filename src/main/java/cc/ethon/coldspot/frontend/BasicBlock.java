@@ -1,20 +1,23 @@
 package cc.ethon.coldspot.frontend;
 
-import java.awt.Label;
 import java.util.List;
 
+import org.objectweb.asm.Label;
+
+import cc.ethon.coldspot.frontend.ast.ExpressionNode;
 import cc.ethon.coldspot.frontend.ast.StatementBlock;
 import cc.ethon.coldspot.frontend.ast.StatementNode;
 
 class BasicBlock {
 
 	public enum LeftBy {
-		RETURN, JUMP
+		RETURN, JUMP, CONDITONAL_JUMP
 	}
 
 	private final StatementBlock statements;
 	private LeftBy leftBy;
 	private Label jumpTarget;
+	private ExpressionNode jumpCondition;
 
 	public BasicBlock(StatementBlock statements) {
 		super();
@@ -22,11 +25,17 @@ class BasicBlock {
 	}
 
 	public int getFirstInstructionIndex() {
+		if (leftBy == LeftBy.CONDITONAL_JUMP) {
+			return Math.min(statements.getSmallestInstructionIndexWithChildren(), jumpCondition.getSmallestInstructionIndexWithChildren());
+		}
 		return statements.getSmallestInstructionIndexWithChildren();
 	}
 
 	public int getLastInstructionIndex() {
 		final List<StatementNode> list = statements.getStatements();
+		if (leftBy == LeftBy.CONDITONAL_JUMP) {
+			return Math.max(list.get(list.size() - 1).getInstructionIndex(), jumpCondition.getInstructionIndex());
+		}
 		return list.get(list.size() - 1).getInstructionIndex();
 	}
 
@@ -68,6 +77,19 @@ class BasicBlock {
 
 	public void setJumpTarget(Label jumpTarget) {
 		this.jumpTarget = jumpTarget;
+	}
+
+	public ExpressionNode getJumpCondition() {
+		return jumpCondition;
+	}
+
+	public void setJumpCondition(ExpressionNode jumpCondition) {
+		this.jumpCondition = jumpCondition;
+	}
+
+	@Override
+	public String toString() {
+		return "BasicBlock [statements=" + statements + ", leftBy=" + leftBy + ", jumpTarget=" + jumpTarget + ", jumpCondition=" + jumpCondition + "]";
 	}
 
 }

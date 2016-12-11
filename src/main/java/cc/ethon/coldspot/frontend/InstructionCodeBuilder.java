@@ -3,6 +3,8 @@ package cc.ethon.coldspot.frontend;
 import java.util.Optional;
 import java.util.Stack;
 
+import org.objectweb.asm.Label;
+
 import cc.ethon.coldspot.frontend.ast.AssignmentStatementNode;
 import cc.ethon.coldspot.frontend.ast.BinaryExpressionNode;
 import cc.ethon.coldspot.frontend.ast.ExpressionNode;
@@ -66,6 +68,14 @@ public class InstructionCodeBuilder {
 		++instructionIndex;
 	}
 
+	public void handleConditionalBinaryJump(String operator, Label target) {
+		final ExpressionNode right = expressionStack.pop();
+		final ExpressionNode left = expressionStack.pop();
+		final ExpressionNode condition = new BinaryExpressionNode(instructionIndex, left, right, operator);
+		basicBlockBuilder.finishBasicBlockByConditionalJump(instructionIndex, target, condition);
+		++instructionIndex;
+	}
+
 	public void handleIncrement(int localIndex, int increment) throws InvalidLocalVariableException {
 		final Optional<VariableDeclarationStatementNode> decl = locals.getVariableDeclarationForIndex(localIndex, instructionIndex);
 		if (!decl.isPresent()) {
@@ -88,7 +98,7 @@ public class InstructionCodeBuilder {
 			result = Optional.of(expressionStack.pop());
 		}
 		basicBlockBuilder.addStatement(new ReturnStatementNode(instructionIndex, result));
-		basicBlockBuilder.finishBasicBlockByReturn();
+		basicBlockBuilder.finishBasicBlockByReturn(instructionIndex);
 		++instructionIndex;
 	}
 

@@ -69,6 +69,37 @@ class AstBuildingMethodVisitor extends MethodVisitor {
 	}
 
 	@Override
+	public void visitJumpInsn(int opcode, Label label) {
+		try {
+			switch (opcode) {
+			case Opcodes.IF_ICMPEQ:
+				instructionCodeBuilder.handleConditionalBinaryJump("==", label);
+				break;
+			case Opcodes.IF_ICMPNE:
+				instructionCodeBuilder.handleConditionalBinaryJump("!=", label);
+				break;
+			case Opcodes.IF_ICMPLT:
+				instructionCodeBuilder.handleConditionalBinaryJump("<", label);
+				break;
+			case Opcodes.IF_ICMPGE:
+				instructionCodeBuilder.handleConditionalBinaryJump(">=", label);
+				break;
+			case Opcodes.IF_ICMPGT:
+				instructionCodeBuilder.handleConditionalBinaryJump(">", label);
+				break;
+			case Opcodes.IF_ICMPLE:
+				instructionCodeBuilder.handleConditionalBinaryJump("<=", label);
+				break;
+
+			default:
+				throw new UnsupportedOperationException("Unsupported jumpinsn opcode " + opcode);
+			}
+		} catch (final Exception e) {
+			throw new RuntimeException("Error processing jump instruction", e);
+		}
+	}
+
+	@Override
 	public void visitVarInsn(int opcode, int var) {
 		try {
 			switch (opcode) {
