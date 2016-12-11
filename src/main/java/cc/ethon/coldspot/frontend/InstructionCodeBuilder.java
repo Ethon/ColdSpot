@@ -6,6 +6,7 @@ import java.util.Stack;
 import cc.ethon.coldspot.frontend.ast.AssignmentStatementNode;
 import cc.ethon.coldspot.frontend.ast.BinaryExpressionNode;
 import cc.ethon.coldspot.frontend.ast.ExpressionNode;
+import cc.ethon.coldspot.frontend.ast.IncrementExpressionNode;
 import cc.ethon.coldspot.frontend.ast.LiteralExpressionNode;
 import cc.ethon.coldspot.frontend.ast.ReturnStatementNode;
 import cc.ethon.coldspot.frontend.ast.VariableDeclarationStatementNode;
@@ -66,13 +67,12 @@ public class InstructionCodeBuilder {
 	}
 
 	public void handleIncrement(int localIndex, int increment) throws InvalidLocalVariableException {
-		handleLocalVariableLoad(localIndex);
-		--instructionIndex;
-		handleIntLiteralExpression(increment);
-		--instructionIndex;
-		handleBinaryExpression("+");
-		--instructionIndex;
-		handleLocalVariableStore(localIndex);
+		final Optional<VariableDeclarationStatementNode> decl = locals.getVariableDeclarationForIndex(localIndex, instructionIndex);
+		if (!decl.isPresent()) {
+			throw new InvalidLocalVariableException("Attempt to increment local variable " + localIndex + ", which was not declared");
+		}
+		expressionStack.push(new IncrementExpressionNode(instructionIndex, decl.get(), increment));
+		++instructionIndex;
 	}
 
 	public void handleBinaryExpression(String operator) {
