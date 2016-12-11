@@ -7,6 +7,7 @@ import org.objectweb.asm.Opcodes;
 import cc.ethon.coldspot.common.ColdSpotConstants;
 import cc.ethon.coldspot.common.type.TypeParsing;
 import cc.ethon.coldspot.frontend.ast.MethodNode;
+import cc.ethon.coldspot.frontend.errors.InvalidLocalVariableException;
 
 class AstBuildingMethodVisitor extends MethodVisitor {
 
@@ -60,8 +61,11 @@ class AstBuildingMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitIincInsn(int var, int increment) {
-		// TODO Auto-generated method stub
-		super.visitIincInsn(var, increment);
+		try {
+			instructionCodeBuilder.handleIncrement(var, increment);
+		} catch (final InvalidLocalVariableException e) {
+			throw new RuntimeException("Error processing iinc instruction", e);
+		}
 	}
 
 	@Override
