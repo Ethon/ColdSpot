@@ -48,4 +48,9 @@ public class VariableDeclarationStatementNode extends StatementNode {
 		return visitor.accept(this);
 	}
 
+	@Override
+	public String toString() {
+		return "VariableDeclarationStatementNode [type=" + type + ", name=" + name + ", value=" + value + "]";
+	}
+
 }

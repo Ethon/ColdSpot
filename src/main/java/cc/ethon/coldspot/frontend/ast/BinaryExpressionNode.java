@@ -34,4 +34,9 @@ public class BinaryExpressionNode extends ExpressionNode {
 		return visitor.accept(this);
 	}
 
+	@Override
+	public String toString() {
+		return "BinaryExpressionNode [left=" + left + ", right=" + right + ", operator=" + operator + "]";
+	}
+
 }

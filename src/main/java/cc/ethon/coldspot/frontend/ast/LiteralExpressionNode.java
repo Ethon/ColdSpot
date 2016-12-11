@@ -18,4 +18,9 @@ public class LiteralExpressionNode extends ExpressionNode {
 		return visitor.accept(this);
 	}
 
+	@Override
+	public String toString() {
+		return "LiteralExpressionNode [literal=" + literal + "]";
+	}
+
 }

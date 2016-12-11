@@ -28,4 +28,9 @@ public class ReturnStatementNode extends StatementNode {
 		return visitor.accept(this);
 	}
 
+	@Override
+	public String toString() {
+		return "ReturnStatementNode [result=" + result + "]";
+	}
+
 }

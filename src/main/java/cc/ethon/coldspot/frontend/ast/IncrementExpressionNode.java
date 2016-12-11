@@ -24,4 +24,9 @@ public class IncrementExpressionNode extends ExpressionNode {
 		return visitor.accept(this);
 	}
 
+	@Override
+	public String toString() {
+		return "IncrementExpressionNode [toIncrement=" + toIncrement + ", incrementBy=" + incrementBy + "]";
+	}
+
 }

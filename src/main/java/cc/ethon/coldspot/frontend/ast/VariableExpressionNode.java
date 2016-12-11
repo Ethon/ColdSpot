@@ -22,4 +22,9 @@ public class VariableExpressionNode extends ExpressionNode {
 		return visitor.accept(this);
 	}
 
+	@Override
+	public String toString() {
+		return "VariableExpressionNode [declaration=" + declaration + "]";
+	}
+
 }

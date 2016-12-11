@@ -28,4 +28,9 @@ public class AssignmentStatementNode extends StatementNode {
 		return visitor.accept(this);
 	}
 
+	@Override
+	public String toString() {
+		return "AssignmentStatementNode [left=" + left + ", right=" + right + "]";
+	}
+
 }

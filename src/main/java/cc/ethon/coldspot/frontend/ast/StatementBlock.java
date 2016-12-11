@@ -29,4 +29,9 @@ public class StatementBlock extends StatementNode {
 		return visitor.accept(this);
 	}
 
+	@Override
+	public String toString() {
+		return "StatementBlock [statements=" + statements + "]";
+	}
+
 }
