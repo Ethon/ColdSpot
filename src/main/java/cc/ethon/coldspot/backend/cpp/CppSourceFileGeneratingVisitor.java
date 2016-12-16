@@ -12,7 +12,9 @@ import cc.ethon.coldspot.frontend.ast.AssignmentStatementNode;
 import cc.ethon.coldspot.frontend.ast.AstVisitor;
 import cc.ethon.coldspot.frontend.ast.BinaryExpressionNode;
 import cc.ethon.coldspot.frontend.ast.ClassNode;
+import cc.ethon.coldspot.frontend.ast.DoWhileLoopStatementNode;
 import cc.ethon.coldspot.frontend.ast.ExpressionNode;
+import cc.ethon.coldspot.frontend.ast.ExpressionStatementNode;
 import cc.ethon.coldspot.frontend.ast.IncrementExpressionNode;
 import cc.ethon.coldspot.frontend.ast.LiteralExpressionNode;
 import cc.ethon.coldspot.frontend.ast.MethodNode;
@@ -164,6 +166,22 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<String> {
 		} else {
 			return String.format("(%s += %s)", incrementExpressionNode.getToIncrement().getName(), incrementExpressionNode.getIncrementBy());
 		}
+	}
+
+	@Override
+	public String accept(DoWhileLoopStatementNode doWhileLoopStatementNode) {
+		writer.println("do {");
+		writer.increaseIndentation();
+		doWhileLoopStatementNode.getBody().accept(this);
+		writer.decreaseIndentation();
+		writer.printf("} while(%s);%n", doWhileLoopStatementNode.getCondition().accept(this));
+		return null;
+	}
+
+	@Override
+	public String visit(ExpressionStatementNode expressionStatementNode) {
+		writer.println(expressionStatementNode.getExpression().accept(this) + ";");
+		return null;
 	}
 
 }

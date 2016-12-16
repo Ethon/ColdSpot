@@ -34,7 +34,9 @@ class AstBuildingMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitEnd() {
-		methodNode.setBody(basicBlockBuilder.compile());
+		basicBlockBuilder.processJumps(labels);
+		final ControlFlowDecompiler decompiler = new ControlFlowDecompiler(basicBlockBuilder, labels);
+		methodNode.setBody(decompiler.decompile());
 	}
 
 	@Override
@@ -72,6 +74,25 @@ class AstBuildingMethodVisitor extends MethodVisitor {
 	public void visitJumpInsn(int opcode, Label label) {
 		try {
 			switch (opcode) {
+			case Opcodes.IFEQ:
+				instructionCodeBuilder.handleConditionalComparisonWithZeroJump("==", label);
+				break;
+			case Opcodes.IFNE:
+				instructionCodeBuilder.handleConditionalComparisonWithZeroJump("!=", label);
+				break;
+			case Opcodes.IFLT:
+				instructionCodeBuilder.handleConditionalComparisonWithZeroJump("<", label);
+				break;
+			case Opcodes.IFGE:
+				instructionCodeBuilder.handleConditionalComparisonWithZeroJump(">=", label);
+				break;
+			case Opcodes.IFGT:
+				instructionCodeBuilder.handleConditionalComparisonWithZeroJump(">", label);
+				break;
+			case Opcodes.IFLE:
+				instructionCodeBuilder.handleConditionalComparisonWithZeroJump("<=", label);
+				break;
+
 			case Opcodes.IF_ICMPEQ:
 				instructionCodeBuilder.handleConditionalBinaryJump("==", label);
 				break;

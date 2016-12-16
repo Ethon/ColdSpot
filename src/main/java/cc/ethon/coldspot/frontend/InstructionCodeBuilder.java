@@ -8,6 +8,7 @@ import org.objectweb.asm.Label;
 import cc.ethon.coldspot.frontend.ast.AssignmentStatementNode;
 import cc.ethon.coldspot.frontend.ast.BinaryExpressionNode;
 import cc.ethon.coldspot.frontend.ast.ExpressionNode;
+import cc.ethon.coldspot.frontend.ast.ExpressionStatementNode;
 import cc.ethon.coldspot.frontend.ast.IncrementExpressionNode;
 import cc.ethon.coldspot.frontend.ast.LiteralExpressionNode;
 import cc.ethon.coldspot.frontend.ast.ReturnStatementNode;
@@ -76,12 +77,21 @@ public class InstructionCodeBuilder {
 		++instructionIndex;
 	}
 
+	public void handleConditionalComparisonWithZeroJump(String operator, Label target) {
+		final ExpressionNode syntheticRight = new LiteralExpressionNode(instructionIndex, "0");
+		final ExpressionNode left = expressionStack.pop();
+		final ExpressionNode condition = new BinaryExpressionNode(instructionIndex, left, syntheticRight, operator);
+		basicBlockBuilder.finishBasicBlockByConditionalJump(instructionIndex, target, condition);
+		++instructionIndex;
+	}
+
 	public void handleIncrement(int localIndex, int increment) throws InvalidLocalVariableException {
 		final Optional<VariableDeclarationStatementNode> decl = locals.getVariableDeclarationForIndex(localIndex, instructionIndex);
 		if (!decl.isPresent()) {
 			throw new InvalidLocalVariableException("Attempt to increment local variable " + localIndex + ", which was not declared");
 		}
-		expressionStack.push(new IncrementExpressionNode(instructionIndex, decl.get(), increment));
+		final ExpressionNode expression = new IncrementExpressionNode(instructionIndex, decl.get(), increment);
+		basicBlockBuilder.addStatement(new ExpressionStatementNode(instructionIndex, expression));
 		++instructionIndex;
 	}
 

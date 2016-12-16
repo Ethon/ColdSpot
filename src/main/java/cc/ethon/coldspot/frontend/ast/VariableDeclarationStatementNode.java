@@ -50,7 +50,11 @@ public class VariableDeclarationStatementNode extends StatementNode {
 
 	@Override
 	public String toString() {
-		return "VariableDeclarationStatementNode [type=" + type + ", name=" + name + ", value=" + value + "]";
+		if (value.isPresent()) {
+			return String.format("%s %s = %s", type.getClass().getSimpleName(), getName(), value.get());
+		} else {
+			return String.format("%s %s", type.getClass().getSimpleName(), getName());
+		}
 	}
 
 }

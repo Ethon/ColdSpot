@@ -21,7 +21,12 @@ public class StatementBlock extends StatementNode {
 		if (statements.isEmpty()) {
 			return instructionIndex;
 		}
-		return statements.get(0).getSmallestInstructionIndexWithChildren();
+
+		int minInstructionIndex = instructionIndex;
+		for (final StatementNode statementNode : statements) {
+			minInstructionIndex = Math.min(minInstructionIndex, statementNode.getSmallestInstructionIndexWithChildren());
+		}
+		return minInstructionIndex;
 	}
 
 	@Override
@@ -31,7 +36,15 @@ public class StatementBlock extends StatementNode {
 
 	@Override
 	public String toString() {
-		return "StatementBlock [statements=" + statements + "]";
+		final StringBuilder b = new StringBuilder();
+		b.append("{\n");
+		for (final StatementNode statementNode : statements) {
+			b.append("\t");
+			b.append(statementNode);
+			b.append("\n");
+		}
+		b.append("}\n");
+		return b.toString();
 	}
 
 }

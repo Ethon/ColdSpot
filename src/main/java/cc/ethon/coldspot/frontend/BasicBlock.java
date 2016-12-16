@@ -1,6 +1,7 @@
 package cc.ethon.coldspot.frontend;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.objectweb.asm.Label;
 
@@ -11,7 +12,7 @@ import cc.ethon.coldspot.frontend.ast.StatementNode;
 class BasicBlock {
 
 	public enum LeftBy {
-		RETURN, JUMP, CONDITONAL_JUMP
+		RETURN, JUMP, CONDITONAL_JUMP, JUMP_TARGET
 	}
 
 	private final StatementBlock statements;
@@ -22,6 +23,36 @@ class BasicBlock {
 	public BasicBlock(StatementBlock statements) {
 		super();
 		this.statements = statements;
+	}
+
+	public Optional<BasicBlock[]> splitAt(int instructionIndex) {
+		if (instructionIndex > getLastInstructionIndex()) {
+			throw new IllegalArgumentException();
+		}
+		if (instructionIndex == getFirstInstructionIndex()) {
+			return Optional.empty();
+		}
+		final StatementBlock before = new StatementBlock(getFirstInstructionIndex());
+		final StatementBlock after = new StatementBlock(instructionIndex);
+		for (int i = 0; i < statements.getStatements().size(); ++i) {
+			final StatementNode statement = statements.getStatements().get(i);
+			if (i < instructionIndex) {
+				before.getStatements().add(statement);
+			} else {
+				after.getStatements().add(statement);
+			}
+		}
+
+		final BasicBlock beforeBlock = new BasicBlock(before);
+		beforeBlock.setLeftBy(LeftBy.JUMP_TARGET);
+
+		final BasicBlock afterBlock = new BasicBlock(after);
+		afterBlock.setLeftBy(leftBy);
+		afterBlock.setJumpTarget(jumpTarget);
+		afterBlock.setJumpCondition(jumpCondition);
+
+		return Optional.of(new BasicBlock[] { beforeBlock, afterBlock });
+
 	}
 
 	public int getFirstInstructionIndex() {

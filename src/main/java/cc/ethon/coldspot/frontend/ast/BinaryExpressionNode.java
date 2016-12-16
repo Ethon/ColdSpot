@@ -36,7 +36,7 @@ public class BinaryExpressionNode extends ExpressionNode {
 
 	@Override
 	public String toString() {
-		return "BinaryExpressionNode [left=" + left + ", right=" + right + ", operator=" + operator + "]";
+		return String.format("(%s %s %s)", left, operator, right);
 	}
 
 }

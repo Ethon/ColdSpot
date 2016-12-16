@@ -28,6 +28,11 @@ class LabelManager {
 			this.line = line;
 		}
 
+		@Override
+		public String toString() {
+			return "LabelPosition [instructionIndex=" + instructionIndex + ", line=" + line + "]";
+		}
+
 	}
 
 	private Label firstLabel, lastLabel;

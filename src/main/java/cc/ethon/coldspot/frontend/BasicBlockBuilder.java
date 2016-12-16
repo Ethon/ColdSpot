@@ -2,6 +2,7 @@ package cc.ethon.coldspot.frontend;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.objectweb.asm.Label;
 
@@ -29,6 +30,44 @@ class BasicBlockBuilder {
 		basicBlocks = new ArrayList<BasicBlock>();
 	}
 
+	public void processJumps(LabelManager labels) {
+		for (int i = 0; i < basicBlocks.size(); i++) {
+			final BasicBlock basicBlock = basicBlocks.get(i);
+			if (basicBlock.getLeftBy() == LeftBy.JUMP || basicBlock.getLeftBy() == LeftBy.CONDITONAL_JUMP) {
+				final int targetInstructionIndex = labels.getInstructionIndexForLabel(basicBlock.getJumpTarget());
+				final int targetBlockIndex = getBlockIndexByInstructionIndex(targetInstructionIndex);
+				final BasicBlock targetBlock = basicBlocks.get(targetBlockIndex);
+				final Optional<BasicBlock[]> splitted = targetBlock.splitAt(targetInstructionIndex);
+				if (splitted.isPresent()) {
+					basicBlocks.remove(targetBlockIndex);
+					basicBlocks.add(targetBlockIndex, splitted.get()[0]);
+					basicBlocks.add(targetBlockIndex + 1, splitted.get()[1]);
+					if (i <= targetBlockIndex) {
+						++i;
+					}
+				}
+			}
+		}
+	}
+
+	public List<BasicBlock> getBasicBlocks() {
+		return basicBlocks;
+	}
+
+	public int getBlockIndexByInstructionIndex(int instructionIndex) {
+		for (int i = 0; i < basicBlocks.size(); ++i) {
+			final BasicBlock basicBlock = basicBlocks.get(i);
+			if (basicBlock.containsInstructionIndex(instructionIndex)) {
+				return i;
+			}
+		}
+		throw new IllegalArgumentException();
+	}
+
+	public BasicBlock getBlockByInstructionIndex(int instructionIndex) {
+		return basicBlocks.get(getBlockIndexByInstructionIndex(instructionIndex));
+	}
+
 	public void addStatement(StatementNode statement) {
 		if (isBasicBlockFinished || basicBlocks.isEmpty()) {
 			basicBlocks.add(new BasicBlock(new StatementBlock(statement.getInstructionIndex())));
@@ -37,13 +76,7 @@ class BasicBlockBuilder {
 	}
 
 	public void injectStatementBefore(StatementNode statement) {
-		for (final BasicBlock basicBlock : basicBlocks) {
-			if (basicBlock.containsInstructionIndex(statement.getInstructionIndex())) {
-				basicBlock.injectStatementBefore(statement);
-				return;
-			}
-		}
-		throw new IllegalArgumentException();
+		getBlockByInstructionIndex(statement.getInstructionIndex()).injectStatementBefore(statement);
 	}
 
 	public void finishBasicBlockByReturn(int instructionIndex) {
@@ -65,10 +98,6 @@ class BasicBlockBuilder {
 		last().setLeftBy(LeftBy.CONDITONAL_JUMP);
 		last().setJumpTarget(target);
 		last().setJumpCondition(condition);
-	}
-
-	public StatementBlock compile() {
-		return basicBlocks.get(0).getStatements();
 	}
 
 }

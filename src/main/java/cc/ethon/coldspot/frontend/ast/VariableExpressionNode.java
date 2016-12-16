@@ -24,7 +24,7 @@ public class VariableExpressionNode extends ExpressionNode {
 
 	@Override
 	public String toString() {
-		return "VariableExpressionNode [declaration=" + declaration + "]";
+		return declaration.getName();
 	}
 
 }

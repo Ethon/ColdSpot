@@ -30,7 +30,7 @@ public class AssignmentStatementNode extends StatementNode {
 
 	@Override
 	public String toString() {
-		return "AssignmentStatementNode [left=" + left + ", right=" + right + "]";
+		return String.format("%s = %s", left, right);
 	}
 
 }

@@ -20,7 +20,7 @@ public class LiteralExpressionNode extends ExpressionNode {
 
 	@Override
 	public String toString() {
-		return "LiteralExpressionNode [literal=" + literal + "]";
+		return literal;
 	}
 
 }

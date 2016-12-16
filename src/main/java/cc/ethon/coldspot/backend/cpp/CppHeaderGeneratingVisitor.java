@@ -12,6 +12,8 @@ import cc.ethon.coldspot.frontend.ast.AssignmentStatementNode;
 import cc.ethon.coldspot.frontend.ast.AstVisitor;
 import cc.ethon.coldspot.frontend.ast.BinaryExpressionNode;
 import cc.ethon.coldspot.frontend.ast.ClassNode;
+import cc.ethon.coldspot.frontend.ast.DoWhileLoopStatementNode;
+import cc.ethon.coldspot.frontend.ast.ExpressionStatementNode;
 import cc.ethon.coldspot.frontend.ast.IncrementExpressionNode;
 import cc.ethon.coldspot.frontend.ast.LiteralExpressionNode;
 import cc.ethon.coldspot.frontend.ast.MethodNode;
@@ -191,6 +193,16 @@ class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 
 	@Override
 	public Void accept(IncrementExpressionNode incrementExpressionNode) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Void accept(DoWhileLoopStatementNode doWhileLoopStatementNode) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Void visit(ExpressionStatementNode expressionStatementNode) {
 		throw new UnsupportedOperationException();
 	}
 

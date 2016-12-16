@@ -22,4 +22,8 @@ public interface AstVisitor<T> {
 
 	public T accept(IncrementExpressionNode incrementExpressionNode);
 
+	public T accept(DoWhileLoopStatementNode doWhileLoopStatementNode);
+
+	public T visit(ExpressionStatementNode expressionStatementNode);
+
 }

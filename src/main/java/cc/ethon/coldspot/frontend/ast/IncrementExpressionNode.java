@@ -26,7 +26,7 @@ public class IncrementExpressionNode extends ExpressionNode {
 
 	@Override
 	public String toString() {
-		return "IncrementExpressionNode [toIncrement=" + toIncrement + ", incrementBy=" + incrementBy + "]";
+		return String.format("(%s += %d)", toIncrement.getName(), incrementBy);
 	}
 
 }

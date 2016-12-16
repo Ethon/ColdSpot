@@ -30,7 +30,11 @@ public class ReturnStatementNode extends StatementNode {
 
 	@Override
 	public String toString() {
-		return "ReturnStatementNode [result=" + result + "]";
+		if (result.isPresent()) {
+			return String.format("return %s;", result.get());
+		} else {
+			return "return;";
+		}
 	}
 
 }
