@@ -6,4 +6,6 @@ public abstract class ExpressionNode extends ByteCodeNode {
 		super(instructionIndex);
 	}
 
+	public abstract int getPrecedence();
+
 }

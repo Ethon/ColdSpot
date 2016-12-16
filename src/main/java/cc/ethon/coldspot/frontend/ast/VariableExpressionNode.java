@@ -23,6 +23,11 @@ public class VariableExpressionNode extends ExpressionNode {
 	}
 
 	@Override
+	public int getPrecedence() {
+		return 0;
+	}
+
+	@Override
 	public String toString() {
 		return declaration.getName();
 	}

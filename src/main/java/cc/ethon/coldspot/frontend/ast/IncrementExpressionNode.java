@@ -25,6 +25,16 @@ public class IncrementExpressionNode extends ExpressionNode {
 	}
 
 	@Override
+	public int getPrecedence() {
+		if (incrementBy == -1 || incrementBy == 1) {
+			// Can be mapped by prefix unary operator.
+			return 2;
+		} else {
+			return 4; // Binary + -
+		}
+	}
+
+	@Override
 	public String toString() {
 		return String.format("(%s += %d)", toIncrement.getName(), incrementBy);
 	}

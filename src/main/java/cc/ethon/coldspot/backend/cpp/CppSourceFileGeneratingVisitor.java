@@ -30,6 +30,7 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<String> {
 	@SuppressWarnings("unused")
 	private final GenerationSettings settings;
 	private final CppTypeVisitor typeVisitor;
+	private boolean useParentheses;
 
 	private String getTypeName(Type type) {
 		return type.accept(typeVisitor);
@@ -123,6 +124,7 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<String> {
 	public String visit(ReturnStatementNode returnStatementNode) {
 		final Optional<ExpressionNode> result = returnStatementNode.getResult();
 		if (result.isPresent()) {
+			useParentheses = false;
 			writer.println("return " + result.get().accept(this) + ";");
 		} else {
 			writer.println("return;");
@@ -133,14 +135,31 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<String> {
 
 	@Override
 	public String visit(BinaryExpressionNode binaryExpressionNode) {
+		final boolean oldUseParenthes = useParentheses;
+
+		useParentheses = binaryExpressionNode.getLeft().getPrecedence() >= binaryExpressionNode.getPrecedence();
 		final String left = binaryExpressionNode.getLeft().accept(this);
+
+		useParentheses = binaryExpressionNode.getRight().getPrecedence() >= binaryExpressionNode.getPrecedence();
 		final String right = binaryExpressionNode.getRight().accept(this);
-		return String.format("(%s %s %s)", left, binaryExpressionNode.getOperator(), right);
+
+		if (oldUseParenthes) {
+			return String.format("(%s %s %s)", left, binaryExpressionNode.getOperator(), right);
+		} else {
+			return String.format("%s %s %s", left, binaryExpressionNode.getOperator(), right);
+		}
 	}
 
 	@Override
 	public String visit(VariableDeclarationStatementNode variableDeclarationNode) {
-		writer.printf("%s %s;%n", getTypeName(variableDeclarationNode.getType()), variableDeclarationNode.getName());
+		if (variableDeclarationNode.getValue().isPresent()) {
+			useParentheses = false;
+			writer.printf("%s %s = %s;%n", getTypeName(variableDeclarationNode.getType()), variableDeclarationNode.getName(), variableDeclarationNode
+					.getValue().get().accept(this));
+		} else {
+			writer.printf("%s %s;%n", getTypeName(variableDeclarationNode.getType()), variableDeclarationNode.getName());
+		}
+
 		return null;
 	}
 
@@ -164,7 +183,16 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<String> {
 		} else if (incrementExpressionNode.getIncrementBy() == -1) {
 			return "--" + incrementExpressionNode.getToIncrement().getName();
 		} else {
-			return String.format("(%s += %s)", incrementExpressionNode.getToIncrement().getName(), incrementExpressionNode.getIncrementBy());
+			String formatString;
+			final String operator = incrementExpressionNode.getIncrementBy() >= 0 ? "+=" : "-=";
+			if (useParentheses) {
+				formatString = "(%s %s %s)";
+			} else {
+				formatString = "%s %s %s";
+			}
+			return String
+					.format(formatString, incrementExpressionNode.getToIncrement().getName(), operator, Math.abs(incrementExpressionNode.getIncrementBy()));
+
 		}
 	}
 
@@ -174,12 +202,15 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<String> {
 		writer.increaseIndentation();
 		doWhileLoopStatementNode.getBody().accept(this);
 		writer.decreaseIndentation();
+
+		useParentheses = false;
 		writer.printf("} while(%s);%n", doWhileLoopStatementNode.getCondition().accept(this));
 		return null;
 	}
 
 	@Override
 	public String visit(ExpressionStatementNode expressionStatementNode) {
+		useParentheses = false;
 		writer.println(expressionStatementNode.getExpression().accept(this) + ";");
 		return null;
 	}
