@@ -15,6 +15,7 @@ public class ControlFlowDecompiler {
 		return block.getLastInstructionIndex() > labels.getInstructionIndexForLabel(block.getJumpTarget());
 	}
 
+	@SuppressWarnings("unused")
 	private boolean isLeftByDownJump(BasicBlock block) {
 		return block.getLastInstructionIndex() < labels.getInstructionIndexForLabel(block.getJumpTarget());
 	}
