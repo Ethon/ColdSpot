@@ -25,7 +25,7 @@ public class ReturnStatementNode extends StatementNode {
 
 	@Override
 	public <T> T accept(AstVisitor<T> visitor) {
-		return visitor.accept(this);
+		return visitor.visit(this);
 	}
 
 	@Override

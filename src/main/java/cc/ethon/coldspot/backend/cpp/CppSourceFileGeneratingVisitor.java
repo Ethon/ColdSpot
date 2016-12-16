@@ -107,12 +107,12 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<String> {
 	}
 
 	@Override
-	public String accept(VariableExpressionNode variableExpressionNode) {
+	public String visit(VariableExpressionNode variableExpressionNode) {
 		return variableExpressionNode.getName();
 	}
 
 	@Override
-	public String accept(StatementBlock statementBlock) {
+	public String visit(StatementBlock statementBlock) {
 		for (final StatementNode statementNode : statementBlock.getStatements()) {
 			statementNode.accept(this);
 		}
@@ -120,7 +120,7 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<String> {
 	}
 
 	@Override
-	public String accept(ReturnStatementNode returnStatementNode) {
+	public String visit(ReturnStatementNode returnStatementNode) {
 		final Optional<ExpressionNode> result = returnStatementNode.getResult();
 		if (result.isPresent()) {
 			writer.println("return " + result.get().accept(this) + ";");
@@ -132,25 +132,25 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<String> {
 	}
 
 	@Override
-	public String accept(BinaryExpressionNode binaryExpressionNode) {
+	public String visit(BinaryExpressionNode binaryExpressionNode) {
 		final String left = binaryExpressionNode.getLeft().accept(this);
 		final String right = binaryExpressionNode.getRight().accept(this);
 		return String.format("(%s %s %s)", left, binaryExpressionNode.getOperator(), right);
 	}
 
 	@Override
-	public String accept(VariableDeclarationStatementNode variableDeclarationNode) {
+	public String visit(VariableDeclarationStatementNode variableDeclarationNode) {
 		writer.printf("%s %s;%n", getTypeName(variableDeclarationNode.getType()), variableDeclarationNode.getName());
 		return null;
 	}
 
 	@Override
-	public String accept(LiteralExpressionNode literalExpressionNode) {
+	public String visit(LiteralExpressionNode literalExpressionNode) {
 		return literalExpressionNode.getLiteral();
 	}
 
 	@Override
-	public String accept(AssignmentStatementNode assignmentStatementNode) {
+	public String visit(AssignmentStatementNode assignmentStatementNode) {
 		final String left = assignmentStatementNode.getLeft().accept(this);
 		final String right = assignmentStatementNode.getRight().accept(this);
 		writer.printf("%s = %s;%n", left, right);
@@ -158,7 +158,7 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<String> {
 	}
 
 	@Override
-	public String accept(IncrementExpressionNode incrementExpressionNode) {
+	public String visit(IncrementExpressionNode incrementExpressionNode) {
 		if (incrementExpressionNode.getIncrementBy() == 1) {
 			return "++" + incrementExpressionNode.getToIncrement().getName();
 		} else if (incrementExpressionNode.getIncrementBy() == -1) {
@@ -169,7 +169,7 @@ class CppSourceFileGeneratingVisitor implements AstVisitor<String> {
 	}
 
 	@Override
-	public String accept(DoWhileLoopStatementNode doWhileLoopStatementNode) {
+	public String visit(DoWhileLoopStatementNode doWhileLoopStatementNode) {
 		writer.println("do {");
 		writer.increaseIndentation();
 		doWhileLoopStatementNode.getBody().accept(this);

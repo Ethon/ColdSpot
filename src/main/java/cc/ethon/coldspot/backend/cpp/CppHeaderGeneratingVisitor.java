@@ -157,47 +157,47 @@ class CppHeaderGeneratingVisitor implements AstVisitor<Void> {
 	}
 
 	@Override
-	public Void accept(VariableExpressionNode variableExpressionNode) {
+	public Void visit(VariableExpressionNode variableExpressionNode) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Void accept(StatementBlock statementBlock) {
+	public Void visit(StatementBlock statementBlock) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Void accept(ReturnStatementNode returnStatementNode) {
+	public Void visit(ReturnStatementNode returnStatementNode) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Void accept(BinaryExpressionNode binaryExpressionNode) {
+	public Void visit(BinaryExpressionNode binaryExpressionNode) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Void accept(VariableDeclarationStatementNode variableDeclarationNode) {
+	public Void visit(VariableDeclarationStatementNode variableDeclarationNode) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Void accept(LiteralExpressionNode literalExpressionNode) {
+	public Void visit(LiteralExpressionNode literalExpressionNode) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Void accept(AssignmentStatementNode assignmentStatementNode) {
+	public Void visit(AssignmentStatementNode assignmentStatementNode) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Void accept(IncrementExpressionNode incrementExpressionNode) {
+	public Void visit(IncrementExpressionNode incrementExpressionNode) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Void accept(DoWhileLoopStatementNode doWhileLoopStatementNode) {
+	public Void visit(DoWhileLoopStatementNode doWhileLoopStatementNode) {
 		throw new UnsupportedOperationException();
 	}
 
