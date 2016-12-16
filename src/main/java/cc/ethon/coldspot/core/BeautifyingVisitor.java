@@ -1,16 +1,38 @@
 package cc.ethon.coldspot.core;
 
+import java.util.List;
 import java.util.Optional;
 
 import cc.ethon.coldspot.frontend.ast.AbstractAstVisitor;
 import cc.ethon.coldspot.frontend.ast.AssignmentStatementNode;
 import cc.ethon.coldspot.frontend.ast.ExpressionNode;
+import cc.ethon.coldspot.frontend.ast.MethodNode;
+import cc.ethon.coldspot.frontend.ast.ReturnStatementNode;
 import cc.ethon.coldspot.frontend.ast.StatementBlock;
 import cc.ethon.coldspot.frontend.ast.StatementNode;
 import cc.ethon.coldspot.frontend.ast.VariableDeclarationStatementNode;
 import cc.ethon.coldspot.frontend.ast.VariableExpressionNode;
 
 class BeautifyingVisitor extends AbstractAstVisitor<Void> {
+
+	@Override
+	public Void visit(MethodNode methodNode) {
+		final StatementBlock body = methodNode.getBody();
+		final List<StatementNode> statements = body.getStatements();
+		if (!statements.isEmpty()) {
+
+			// Remove trailing return void at end of body.
+			final StatementNode last = statements.get(statements.size() - 1);
+			if (last instanceof ReturnStatementNode) {
+				final ReturnStatementNode asReturn = (ReturnStatementNode) last;
+				if (!asReturn.getResult().isPresent()) {
+					statements.remove(statements.size() - 1);
+				}
+			}
+
+		}
+		return super.visit(methodNode);
+	}
 
 	@Override
 	public Void visit(StatementBlock statementBlock) {
